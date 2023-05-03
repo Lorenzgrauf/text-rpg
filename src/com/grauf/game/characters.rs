@@ -1,35 +1,70 @@
+use std::io;
+use crate::characters::Character::{Mage, Rouge, Warrior};
+
 pub struct CharacterSelection {
-    pub(crate) character_factory: fn() -> Characters,
+    pub character_factory: Box<dyn Fn() -> Character>,
 }
 
 impl CharacterSelection {
+    pub fn stdin_character_factory() -> CharacterSelection {
+        CharacterSelection {
+            character_factory: Box::new(|| {
+                loop {
+                    println!("Type a number to select your character:");
+                    println!("1: Rouge");
+                    println!("2: Warrior");
+                    println!("3: Mage");
 
-    pub fn select_character(&self) -> Characters {
+                    let mut character_selection = String::new();
+
+                    io::stdin()
+                        .read_line(&mut character_selection)
+                        .expect("You provided invalid input!");
+
+                    let character_index: u8 = match character_selection.trim().parse() {
+                        Ok(character) => character,
+                        Err(_) => continue
+                    };
+
+                    return match character_index {
+                        1 => Rouge,
+                        2 => Warrior,
+                        3 => Mage,
+                        _ => continue
+                    };
+                }
+            })
+        }
+    }
+
+    pub fn character(&self) -> Character {
         (self.character_factory)()
     }
 }
 
-#[derive(Debug, PartialEq)]
-pub enum Characters {
+#[derive(Debug, PartialEq, Clone)]
+pub enum Character {
     Rouge,
     Warrior,
-    Mage
+    Mage,
 }
 
 
 #[cfg(test)]
 mod tests {
-    use crate::characters::Characters::Rouge;
+    use crate::characters::Character::{Mage, Rouge, Warrior};
     use crate::characters::CharacterSelection;
 
     #[test]
-    fn spike() {
-        let character_selection = CharacterSelection {
-            character_factory: || Rouge
-        };
+    fn select_should_provide_character() {
+        for character_in in [Rouge, Warrior, Mage].iter() {
+            let character_selection = CharacterSelection {
+                character_factory: Box::new(move || character_in.clone())
+            };
 
-        let character = character_selection.select_character();
+            let character_out = character_selection.character();
 
-        assert_eq!(character, Rouge)
+            assert_eq!(&character_out, character_in)
+        }
     }
 }
