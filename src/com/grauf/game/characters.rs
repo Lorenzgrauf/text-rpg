@@ -57,14 +57,14 @@ mod tests {
 
     #[test]
     fn select_should_provide_character() {
-        for character_in in [Rouge, Warrior, Mage].iter() {
+        for character in [Rouge, Warrior, Mage].iter() {
             let character_selection = CharacterSelection {
-                character_factory: Box::new(move || character_in.clone())
+                character_factory: Box::new(move || character.clone())
             };
 
-            let character_out = character_selection.character();
+            let selected_character = &character_selection.character();
 
-            assert_eq!(&character_out, character_in)
+            assert_eq!(selected_character, character)
         }
     }
 }
