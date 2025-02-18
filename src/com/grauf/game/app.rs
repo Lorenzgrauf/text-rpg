@@ -1,14 +1,19 @@
-use crate::characters::{CharacterSelection};
+use crate::character_selection::CharacterSelection;
+use crate::game::Game;
+use crate::view::Menu;
 
 pub mod characters;
+mod character_selection;
+mod game;
+mod view;
 
 fn main() {
-    let app = App {};
+    let app = App;
 
     app.run();
 }
 
-struct App {}
+struct App;
 
 impl App {
     fn run(&self) {
@@ -16,6 +21,12 @@ impl App {
         let character_selection = CharacterSelection::stdin_character_factory();
 
         let character = character_selection.character();
-        println!("You chose {:?}", character)
+        println!("You chose {:?}", character);
+
+        let mut game = Game::new(character, Box::new(Menu {
+            view_factory: Box::new(|| todo!()),
+        }));
+
+        game.play();
     }
 }
